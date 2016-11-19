@@ -1,0 +1,5 @@
+sipo.gui.overall=Overall Statistics
+sipo.gui.world=World Statistics
+sipo.gui.entity=Entity Statistics
+sipo.gui.tileentity=TileEntity Statistics
+sipo.gui.network=Network Statistics
