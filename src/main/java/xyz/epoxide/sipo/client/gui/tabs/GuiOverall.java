@@ -6,11 +6,13 @@ import org.lwjgl.opengl.GL11;
 import xyz.epoxide.sipo.client.gui.GuiStatistics;
 import xyz.epoxide.sipo.profiler.ProfilerManager;
 import xyz.epoxide.sipo.profiler.world.ProfilerEntity;
+import xyz.epoxide.sipo.profiler.world.ProfilerNetwork;
 import xyz.epoxide.sipo.profiler.world.ProfilerTileEntity;
 import xyz.epoxide.sipo.profiler.world.ProfilerWorld;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LongSummaryStatistics;
 
 import static com.google.common.math.DoubleMath.mean;
@@ -20,29 +22,38 @@ public class GuiOverall extends GuiTab {
 
     @Override
     public void render(GuiStatistics parent) {
-        ProfilerWorld overall = ProfilerManager.PROFILER_WORLD;
+        ProfilerWorld world = ProfilerManager.PROFILER_WORLD;
         ProfilerTileEntity te = ProfilerManager.PROFILER_TILE_ENTITY;
         ProfilerEntity entity = ProfilerManager.PROFILER_ENTITY;
+        ProfilerNetwork network = ProfilerManager.PROFILER_NETWORK;
 
-        double meanServerTickTime = mean(overall.tickTimeArray);
+        double meanServerTickTime = mean(world.tickTimeArray);
         double meanServerTPS = Math.min(1000.0 / meanServerTickTime, 20);
 
         String tps = I18n.format("Overall TPS: %s (%sμ)", tFormatter.format(meanServerTPS), tFormatter.format(meanServerTickTime));
         parent.getFontRenderer().drawString(tps, 5, 20, 0xFFFFFFFF);
 
+        parent.getFontRenderer().drawString("Chunk Count: " + world.chunkDataList.stream().filter(chunkData -> !chunkData.persistent).count(), 200, 50, 0xFFFFFFFF);
+        parent.getFontRenderer().drawString("Forced Chunk Count: " + world.chunkDataList.stream().filter(chunkData -> chunkData.persistent).count(), 200, 60, 0xFFFFFFFF);
+
+
         double totalTime = 0;
         for (ProfilerTileEntity.TileEntityData data : te.tileEntityDataList) {
             totalTime += data.time;
         }
+
         double meanTETickTime = te.tileEntityDataList.size() > 0 ? mean(totalTime / te.tileEntityDataList.size()) : 0;
         String teCount = I18n.format("Tile Entity: %s count (%sμ)", te.tileEntityDataList.size(), tFormatter.format(meanTETickTime));
-        parent.getFontRenderer().drawString(teCount, 5, 30, 0xFFFFFFFF);
+        parent.getFontRenderer().drawString(teCount, 5, 50, 0xFFFFFFFF);
 
         double meanEntityTickTime = entity.entityDataList.size() > 0 ? mean(totalTime / entity.entityDataList.size()) : 0;
         String entityCount = I18n.format("Entity: %s count (%sμ)", entity.entityDataList.size(), tFormatter.format(meanEntityTickTime));
-        parent.getFontRenderer().drawString(entityCount, 200, 30, 0xFFFFFFFF);
+        parent.getFontRenderer().drawString(entityCount, 5, 60, 0xFFFFFFFF);
 
-        drawGraph(overall.tickTimeArray.clone(), 200, 100, 200, 100);
+
+        parent.getFontRenderer().drawString("Network Packets: " + network.packetDataList.size(), 5, 70, 0xFFFFFFFF);
+
+//        drawGraph(overall.tickTimeArray.clone(), 200, 100, 200, 100);
     }
 
     public void drawGraph(long[] data, int x, int y, int width, int height) {

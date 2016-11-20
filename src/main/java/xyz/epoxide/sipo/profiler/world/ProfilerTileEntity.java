@@ -25,8 +25,10 @@ public class ProfilerTileEntity extends ProfilerTimer<TileEntity> {
 
     @Override
     public void end(TileEntity key) {
-        this.keyTimeMap.put(key, System.currentTimeMillis() - this.keyStartTimeMap.get(key));
-        this.keyStartTimeMap.clear();
+        if(this.keyStartTimeMap.containsKey(key)) {
+            this.keyTimeMap.put(key, System.currentTimeMillis() - this.keyStartTimeMap.get(key));
+            this.keyStartTimeMap.clear();
+        }
     }
 
     @Override
@@ -58,6 +60,7 @@ public class ProfilerTileEntity extends ProfilerTimer<TileEntity> {
     @Override
     public void fromBytes(ByteBuf buf) {
         this.tileEntityDataList.clear();
+
         int size = buf.readInt();
         for (int i = 0; i < size; i++) {
             this.tileEntityDataList.add(new TileEntityData(ByteBufUtils.readUTF8String(buf), new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), buf.readLong(), buf.readInt()));
@@ -65,7 +68,7 @@ public class ProfilerTileEntity extends ProfilerTimer<TileEntity> {
     }
 
     public static class TileEntityData {
-        private final String name;
+        public final String name;
         public final BlockPos pos;
         public final long time;
         public final int dimID;

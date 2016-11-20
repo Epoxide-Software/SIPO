@@ -21,7 +21,7 @@ targetCompatibility = 1.8
 
 group = "xyz.epoxide.sipo"
 archivesBaseName = "SIPO"
-version = "0.0.0.1"//getVersionFromJava(file("src/main/java/xyz/epoxide/sipo/libs/Constants.java"))
+version = getVersionFromJava(file("src/main/java/xyz/epoxide/sipo/libs/Constants.java"))
 
 minecraft {
     version = "1.10.2-12.18.2.2099"
@@ -46,7 +46,13 @@ processResources {
         exclude 'mcmod.info'
     }
 }
+jar {
 
+    manifest {
+
+        attributes "FMLCorePlugin": "xyz.epoxide.sipo.asm.SIPOLoadingPlugin", "FMLCorePluginContainsFMLMod": "true"
+    }
+}
 String getVersionFromJava(File file) {
 
     String release = "0";

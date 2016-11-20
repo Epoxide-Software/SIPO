@@ -41,8 +41,6 @@ public class PacketSendStatistics implements IMessage {
 
         @Override
         public IMessage onMessage(PacketSendStatistics packet, MessageContext ctx) {
-
-
             return null;
         }
     }

@@ -14,9 +14,9 @@ public class ProfilerEntity extends ProfilerTimer<Entity> {
 
     private Map<Entity, Long> keyTimeMap = new WeakHashMap<>();
 
-    private Map<Entity, EntityData> lookupEntityData = new HashMap<>();
+    private Map<Entity, EntityData> lookupEntityData = Collections.synchronizedMap(new HashMap<>());
 
-    public List<EntityData> entityDataList = new ArrayList<>();
+    public List<EntityData> entityDataList = Collections.synchronizedList(new ArrayList<>());
 
     @Override
     public void initial(Entity key) {
@@ -33,14 +33,13 @@ public class ProfilerEntity extends ProfilerTimer<Entity> {
     public void setupData(MinecraftServer server) {
         for (Integer dimId : DimensionManager.getIDs())
             for (Entity entity : server.worldServerForDimension(dimId).loadedEntityList)
-                this.lookupEntityData.put(entity, new EntityData(entity.getName(), entity.getUniqueID(), entity.getPosition(), this.keyTimeMap.get(entity), dimId));
+                this.lookupEntityData.put(entity, new EntityData(entity.getUniqueID(), entity.getPosition(), this.keyTimeMap.get(entity), dimId));
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
         buf.writeInt(this.lookupEntityData.size());
         for (EntityData entityData : this.lookupEntityData.values()) {
-            ByteBufUtils.writeUTF8String(buf, entityData.entityName);
             buf.writeLong(entityData.uuid.getMostSignificantBits());
             buf.writeLong(entityData.uuid.getLeastSignificantBits());
 
@@ -62,19 +61,17 @@ public class ProfilerEntity extends ProfilerTimer<Entity> {
         this.entityDataList.clear();
         int size = buf.readInt();
         for (int i = 0; i < size; i++) {
-            this.entityDataList.add(new EntityData(ByteBufUtils.readUTF8String(buf), new UUID(buf.readLong(), buf.readLong()), new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), buf.readLong(), buf.readInt()));
+            this.entityDataList.add(new EntityData(new UUID(buf.readLong(), buf.readLong()), new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), buf.readLong(), buf.readInt()));
         }
     }
 
     public static class EntityData {
-        private final String entityName;
-        private final UUID uuid;
+        public final UUID uuid;
         public final BlockPos pos;
         public final long time;
         public final int dimID;
 
-        public EntityData(String entityName, UUID uuid, BlockPos pos, Long time, Integer dimID) {
-            this.entityName = entityName;
+        public EntityData(UUID uuid, BlockPos pos, Long time, Integer dimID) {
             this.uuid = uuid;
             this.pos = pos;
             this.time = time != null ? time : 0;

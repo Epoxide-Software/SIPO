@@ -44,12 +44,11 @@ public class GuiStatistics extends GuiScreen {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        super.mouseClicked(mouseX, mouseY, mouseButton);
+
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        this.drawWorldBackground(0);
         super.drawScreen(mouseX, mouseY, partialTicks);
         this.tick++;
         if (this.tick >= 20) {
@@ -58,6 +57,8 @@ public class GuiStatistics extends GuiScreen {
         }
 
         this.mc.getTextureManager().bindTexture(CREATIVE_INVENTORY_TABS);
+
+        this.drawGradientRect(0, 0, this.width, this.height, -1073741824, -1073741824);
 
         this.drawGradientRect(0, 13, this.width, this.height, -1073741824, -1073741824);
 
@@ -69,7 +70,6 @@ public class GuiStatistics extends GuiScreen {
             String tabName = I18n.format(tab.getUnlocalisedName());
             this.fontRendererObj.drawString(tabName, i * (this.width / tabList.size() - this.fontRendererObj.getStringWidth(tabName) / 2) + 5, 3, 0xFFFFFF);
         }
-
     }
 
     public static void registerTab(GuiTab tab) {
