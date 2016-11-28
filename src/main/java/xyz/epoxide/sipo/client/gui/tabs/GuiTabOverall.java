@@ -2,6 +2,7 @@ package xyz.epoxide.sipo.client.gui.tabs;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.resources.I18n;
+import net.minecraftforge.fml.relauncher.Side;
 import org.lwjgl.opengl.GL11;
 import xyz.epoxide.sipo.client.gui.GuiStatistics;
 import xyz.epoxide.sipo.profiler.ProfilerManager;
@@ -11,13 +12,13 @@ import xyz.epoxide.sipo.profiler.world.ProfilerTileEntity;
 import xyz.epoxide.sipo.profiler.world.ProfilerWorld;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LongSummaryStatistics;
 
 import static com.google.common.math.DoubleMath.mean;
 
-public class GuiOverall extends GuiTab {
+public class GuiTabOverall extends GuiTab {
     private static final DecimalFormat tFormatter = new DecimalFormat("########0.000");
 
     @Override
@@ -33,17 +34,19 @@ public class GuiOverall extends GuiTab {
         String tps = I18n.format("Overall TPS: %s (%sμ)", tFormatter.format(meanServerTPS), tFormatter.format(meanServerTickTime));
         parent.getFontRenderer().drawString(tps, 5, 20, 0xFFFFFFFF);
 
-        parent.getFontRenderer().drawString("Chunk Count: " + world.chunkDataList.stream().filter(chunkData -> !chunkData.persistent).count(), 200, 50, 0xFFFFFFFF);
-        parent.getFontRenderer().drawString("Forced Chunk Count: " + world.chunkDataList.stream().filter(chunkData -> chunkData.persistent).count(), 200, 60, 0xFFFFFFFF);
+        long forced = new ArrayList<>(world.chunkDataList).stream().filter(chunkData -> chunkData.persistent).count();
+        parent.getFontRenderer().drawString("Chunk Count: " + (world.chunkDataList.size() - forced), 200, 50, 0xFFFFFFFF);
+        parent.getFontRenderer().drawString("Forced Chunk Count: " + forced, 200, 60, 0xFFFFFFFF);
 
 
         double totalTime = 0;
-        for (ProfilerTileEntity.TileEntityData data : te.tileEntityDataList) {
+        for (ProfilerTileEntity.TileEntityData data : new ArrayList<>(te.tileEntityDataList)) {
             totalTime += data.time;
         }
 
-        double meanTETickTime = te.tileEntityDataList.size() > 0 ? mean(totalTime / te.tileEntityDataList.size()) : 0;
-        String teCount = I18n.format("Tile Entity: %s count (%sμ)", te.tileEntityDataList.size(), tFormatter.format(meanTETickTime));
+        int teSize = te.tileEntityDataList.size();
+        double meanTETickTime = teSize > 0 ? mean(totalTime / teSize) : 0;
+        String teCount = I18n.format("Tile Entity: %s count (%sμ)", teSize, tFormatter.format(meanTETickTime));
         parent.getFontRenderer().drawString(teCount, 5, 50, 0xFFFFFFFF);
 
         double meanEntityTickTime = entity.entityDataList.size() > 0 ? mean(totalTime / entity.entityDataList.size()) : 0;
@@ -51,13 +54,14 @@ public class GuiOverall extends GuiTab {
         parent.getFontRenderer().drawString(entityCount, 5, 60, 0xFFFFFFFF);
 
 
-        parent.getFontRenderer().drawString("Network Packets: " + network.packetDataList.size(), 5, 70, 0xFFFFFFFF);
+        long packetClient = new ArrayList<>(network.packetDataList).stream().filter(packetData -> packetData.target == Side.CLIENT).count();
+        parent.getFontRenderer().drawString("Network Outbound Packets: " + packetClient, 5, 90, 0xFFFFFFFF);
+        parent.getFontRenderer().drawString("Network Inbound Packets: " + (network.packetDataList.size() - packetClient), 5, 100, 0xFFFFFFFF);
 
 //        drawGraph(overall.tickTimeArray.clone(), 200, 100, 200, 100);
     }
 
     public void drawGraph(long[] data, int x, int y, int width, int height) {
-
         LongSummaryStatistics stat = Arrays.stream(data).summaryStatistics();
         long min = stat.getMin();
         long max = stat.getMax();
@@ -88,7 +92,12 @@ public class GuiOverall extends GuiTab {
     }
 
     @Override
-    public String getUnlocalisedName() {
+    public String getUnlocalizedName() {
         return "sipo.gui.overall";
+    }
+
+    @Override
+    public int getID() {
+        return 0;
     }
 }

@@ -44,7 +44,20 @@ public class GuiStatistics extends GuiScreen {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+        for (int i = 0; i < tabList.size(); i++) {
+            GuiTab tab = tabList.get(i);
+            String tabName = I18n.format(tab.getUnlocalizedName());
+            int x1 = i * (this.width / tabList.size() - this.fontRendererObj.getStringWidth(tabName) / 2) + 5;
+            int x2 = x1 + this.fontRendererObj.getStringWidth(tabName);
 
+            int y1 = 3;
+            int y2 = y1 + this.fontRendererObj.FONT_HEIGHT;
+
+            if (mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2) {
+                this.selectedTabID = tab.getID();
+                break;
+            }
+        }
     }
 
     @Override
@@ -56,24 +69,25 @@ public class GuiStatistics extends GuiScreen {
             this.tick -= 20;
         }
 
-        this.mc.getTextureManager().bindTexture(CREATIVE_INVENTORY_TABS);
+        if (this.mc != null) {
+            this.mc.getTextureManager().bindTexture(CREATIVE_INVENTORY_TABS);
 
-        this.drawGradientRect(0, 0, this.width, this.height, -1073741824, -1073741824);
+            this.drawGradientRect(0, 0, this.width, this.height, -1073741824, -1073741824);
 
-        this.drawGradientRect(0, 13, this.width, this.height, -1073741824, -1073741824);
+            this.drawGradientRect(0, 13, this.width, this.height, -1073741824, -1073741824);
 
-        for (int i = 0; i < tabList.size(); i++) {
-            GuiTab tab = tabList.get(i);
-            if (tab.getID() == selectedTabID)
-                tab.render(this);
+            for (int i = 0; i < tabList.size(); i++) {
+                GuiTab tab = tabList.get(i);
+                if (tab.getID() == selectedTabID)
+                    tab.render(this);
 
-            String tabName = I18n.format(tab.getUnlocalisedName());
-            this.fontRendererObj.drawString(tabName, i * (this.width / tabList.size() - this.fontRendererObj.getStringWidth(tabName) / 2) + 5, 3, 0xFFFFFF);
+                String tabName = I18n.format(tab.getUnlocalizedName());
+                this.fontRendererObj.drawString(tabName, i * (this.width / tabList.size() - this.fontRendererObj.getStringWidth(tabName) / 2) + 5, 3, 0xFFFFFF);
+            }
         }
     }
 
     public static void registerTab(GuiTab tab) {
-        tab.setID(tabList.size());
         tabList.add(tab);
     }
 

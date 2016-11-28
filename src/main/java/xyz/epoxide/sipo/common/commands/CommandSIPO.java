@@ -30,6 +30,7 @@ public class CommandSIPO extends CommandBase {
 
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-        return (sender instanceof EntityPlayer && ((EntityPlayer) sender).getUniqueID().toString().equals("f0f76db6-0461-4151-8ba7-392d65d62ea3")) || super.checkPermission(server, sender);
+        return true;
+//        return (sender instanceof EntityPlayer && ((EntityPlayer) sender).getUniqueID().toString().equals("f0f76db6-0461-4151-8ba7-392d65d62ea3")) || super.checkPermission(server, sender);
     }
 }

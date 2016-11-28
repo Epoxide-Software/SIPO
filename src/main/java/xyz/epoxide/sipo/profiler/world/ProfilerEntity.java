@@ -5,7 +5,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 import xyz.epoxide.sipo.profiler.type.ProfilerTimer;
 
 import java.util.*;
@@ -32,7 +31,7 @@ public class ProfilerEntity extends ProfilerTimer<Entity> {
     @Override
     public void setupData(MinecraftServer server) {
         for (Integer dimId : DimensionManager.getIDs())
-            for (Entity entity : server.worldServerForDimension(dimId).loadedEntityList)
+            for (Entity entity : new ArrayList<>(server.worldServerForDimension(dimId).loadedEntityList))
                 this.lookupEntityData.put(entity, new EntityData(entity.getUniqueID(), entity.getPosition(), this.keyTimeMap.get(entity), dimId));
     }
 

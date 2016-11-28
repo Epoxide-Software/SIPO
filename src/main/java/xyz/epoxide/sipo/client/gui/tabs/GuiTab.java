@@ -4,17 +4,9 @@ import xyz.epoxide.sipo.client.gui.GuiStatistics;
 
 public abstract class GuiTab {
 
-    private int ID;
-
     public abstract void render(GuiStatistics parent);
 
-    public abstract String getUnlocalisedName();
+    public abstract String getUnlocalizedName();
 
-    public void setID(int ID) {
-        this.ID = ID;
-    }
-
-    public int getID() {
-        return ID;
-    }
+    public abstract int getID();
 }

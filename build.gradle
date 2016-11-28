@@ -12,8 +12,6 @@ buildscript {
 }
 
 apply plugin: "maven"
-
-
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 sourceCompatibility = 1.8
@@ -24,40 +22,47 @@ archivesBaseName = "SIPO"
 version = getVersionFromJava(file("src/main/java/xyz/epoxide/sipo/libs/Constants.java"))
 
 minecraft {
-    version = "1.10.2-12.18.2.2099"
+    version = "1.10.2-12.18.2.2151"
     runDir = "run"
-    mappings = "snapshot_20161116"
+    mappings = "snapshot_20160518"
     useDepAts = true
 }
 
-processResources {
+repositories {
+    maven {
+        name = "ChickenBones"
+        url = "http://chickenbones.net/maven"
+    }
+}
 
+dependencies {
+    compile "codechicken:ChickenChunks:1.10.2-2.1.5.46:deobf"
+}
+
+processResources {
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
 
     from(sourceSets.main.resources.srcDirs) {
-
         include 'mcmod.info'
         expand 'version': project.version, 'mcversion': project.minecraft.version
     }
 
     from(sourceSets.main.resources.srcDirs) {
-
         exclude 'mcmod.info'
     }
 }
 jar {
-
     manifest {
-
         attributes "FMLCorePlugin": "xyz.epoxide.sipo.asm.SIPOLoadingPlugin", "FMLCorePluginContainsFMLMod": "true"
     }
 }
+
 String getVersionFromJava(File file) {
 
     String release = "0";
-    String update = "0";
-    String patch = "0";
+    String update = "0"
+    String patch = "0"
 
     String build = System.getenv("BUILD_NUMBER") ? System.getenv("BUILD_NUMBER") : "0";
     def outfile = "";
@@ -69,18 +74,18 @@ String getVersionFromJava(File file) {
 
             String v = s.trim();
 
-        if (v.startsWith(prefix)) {
+            if (v.startsWith(prefix)) {
 
-            v = v.substring(prefix.length(), v.length() - 2);
-            String[] pts = v.split("\\.");
+                v = v.substring(prefix.length(), v.length() - 2);
+                String[] pts = v.split("\\.");
 
-            release = pts[0];
-            update = pts[1];
-            patch = pts[2];
-            s = s.replaceAll(".0\";", ".${build}\";");
-        }
+                release = pts[0];
+                update = pts[1];
+                patch = pts[2];
+                s = s.replaceAll(".0\";", ".${build}\";");
+            }
 
-        outfile += (s + ln);
+            outfile += (s + ln);
     }
 
     file.write(outfile);

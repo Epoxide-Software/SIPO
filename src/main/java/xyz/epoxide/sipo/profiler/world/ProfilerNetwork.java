@@ -48,9 +48,9 @@ public class ProfilerNetwork extends ProfilerBase {
 
     public class PacketData {
 
-        private final String channel;
-        private final Side target;
-        private final int length;
+        public final String channel;
+        public final Side target;
+        public final int length;
 
         public PacketData(String channel, Side target, int length) {
             this.channel = channel;

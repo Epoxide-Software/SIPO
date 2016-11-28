@@ -1,5 +1,6 @@
 package xyz.epoxide.sipo.profiler.world;
 
+import codechicken.chunkloader.tile.TileChunkLoaderBase;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
@@ -25,7 +26,7 @@ public class ProfilerTileEntity extends ProfilerTimer<TileEntity> {
 
     @Override
     public void end(TileEntity key) {
-        if(this.keyStartTimeMap.containsKey(key)) {
+        if (this.keyStartTimeMap.containsKey(key)) {
             this.keyTimeMap.put(key, System.currentTimeMillis() - this.keyStartTimeMap.get(key));
             this.keyStartTimeMap.clear();
         }
@@ -34,8 +35,13 @@ public class ProfilerTileEntity extends ProfilerTimer<TileEntity> {
     @Override
     public void setupData(MinecraftServer server) {
         for (Integer dimId : DimensionManager.getIDs())
-            for (TileEntity tileEntity : server.worldServerForDimension(dimId).tickableTileEntities)
+            for (TileEntity tileEntity : server.worldServerForDimension(dimId).tickableTileEntities) {
                 this.lookupTileEntityData.put(tileEntity, new TileEntityData(tileEntity.getClass().getName(), tileEntity.getPos(), this.keyTimeMap.get(tileEntity), dimId));
+           
+                if(tileEntity instanceof TileChunkLoaderBase){
+
+                }
+            }
     }
 
     @Override
